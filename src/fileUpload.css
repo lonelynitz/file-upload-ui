@@ -1,10 +1,11 @@
 .upload-shell {
-  height: 100vh;
+  /* height: 100vh; */
   display: flex;
   justify-content: center;
   align-items: center;
   background: #f4f7fb;
   font-family: Arial, sans-serif;
+  /* margin-top: 50px; */
 }
 
 .upload-card {
