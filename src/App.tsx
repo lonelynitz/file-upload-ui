@@ -8,7 +8,7 @@ function App() {
     <div style={{ textAlign: 'center' }}>
       <Suspense fallback={<p>Loading file upload...</p>}>
         <FileUpload />
-      </Suspense>
+      </Suspense> 
     </div>
   )
 }

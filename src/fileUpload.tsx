@@ -14,31 +14,135 @@ export const FileUpload = () => {
   const [uploadsLoading, setUploadsLoading] = useState(false);
   const rowsPerPage = 10;
 
-  const parseCsvPreview = (file: File) => {
-    const reader = new FileReader();
+  // const parseCsvPreview = (file: File) => {
+  //   const reader = new FileReader();
 
-    reader.onload = () => {
-      const text = reader.result as string;
-      if (!text) return;
+  //   reader.onload = () => {
+  //     const text = reader.result as string;
+  //     if (!text) return;
 
-      const lines = text.split(/\r?\n/).filter((line) => line.trim().length > 0);
-      if (lines.length === 0) {
-        setPreviewHeaders([]);
-        setPreviewRows([]);
-        return;
+  //     const lines = text.split(/\r?\n/).filter((line) => line.trim().length > 0);
+  //     if (lines.length === 0) {
+  //       setPreviewHeaders([]);
+  //       setPreviewRows([]);
+  //       return;
+  //     }
+
+  //     const parsedRows = lines.map((line) =>
+  //       line.split(",").map((value) => value.trim())
+  //     );
+
+  //     setPreviewHeaders(parsedRows[0] || []);
+  //     setPreviewRows(parsedRows.slice(1));
+  //     setPreviewPage(1);
+  //     setPreviewEnabled(true);
+  //   };
+
+  //   reader.readAsText(file);
+  // };
+
+  const parseCsvPreview = async (
+    file: File
+  ) => {
+    try {
+      // RESET
+      setPreviewEnabled(false);
+      setPreviewHeaders([]);
+      setPreviewRows([]);
+
+      // 1MB CHUNK
+      const chunkSize = 1024 * 1024;
+
+      let offset = 0;
+
+      let headers: string[] = [];
+
+      let allRows: string[][] = [];
+
+      let leftover = "";
+
+      while (offset < file.size) {
+
+        // READ FILE CHUNK
+        const chunk = file.slice(
+          offset,
+          offset + chunkSize
+        );
+
+        const text = await chunk.text();
+
+        // HANDLE SPLIT ROWS
+        const combined =
+          leftover + text;
+
+        const lines =
+          combined.split(/\r?\n/);
+
+        leftover = lines.pop() || "";
+
+        // PARSE CSV ROWS
+        const parsedRows = lines.map(
+          (line) =>
+            line
+              .split(",")
+              .map((value) =>
+                value.trim()
+              )
+        );
+
+        // EXTRACT HEADERS
+        if (
+          headers.length === 0 &&
+          parsedRows.length > 0
+        ) {
+          headers = parsedRows[0];
+
+          parsedRows.shift();
+        }
+
+        // APPEND ROWS
+        allRows.push(...parsedRows);
+
+        // UPDATE UI
+        setPreviewHeaders(headers);
+
+        setPreviewRows([...allRows]);
+
+        setPreviewEnabled(true);
+
+        offset += chunkSize;
+
+        // PREVENT UI FREEZE
+        await new Promise((resolve) =>
+          setTimeout(resolve, 0)
+        );
       }
 
-      const parsedRows = lines.map((line) =>
-        line.split(",").map((value) => value.trim())
-      );
+      // HANDLE LAST REMAINING ROW
+      if (leftover.trim()) {
+        const finalRow = leftover
+          .split(",")
+          .map((value) =>
+            value.trim()
+          );
 
-      setPreviewHeaders(parsedRows[0] || []);
-      setPreviewRows(parsedRows.slice(1));
+        allRows.push(finalRow);
+      }
+
+      setPreviewHeaders(headers);
+
+      setPreviewRows(allRows);
+
       setPreviewPage(1);
-      setPreviewEnabled(true);
-    };
 
-    reader.readAsText(file);
+      setPreviewEnabled(true);
+
+    } catch (err) {
+      console.log(
+        "CSV Preview Error",
+        err
+      );
+    }
   };
 
   const fetchUploads = async () => {
@@ -93,8 +197,8 @@ export const FileUpload = () => {
   const messageType = message.includes("success")
     ? "success"
     : message.includes("failed")
-    ? "error"
-    : "info";
+      ? "error"
+      : "info";
 
   const totalPages = Math.max(1, Math.ceil(previewRows.length / rowsPerPage));
   const currentRows = previewRows.slice(
