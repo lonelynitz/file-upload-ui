@@ -182,52 +182,60 @@ export const FileUpload = () => {
           </div>
         )}
 
-        {uploads.length > 0 && (
-          <div className="uploads-section">
-            <h3 className="preview-title">Saved Uploads</h3>
-            <div className="uploads-table-wrapper">
-              <table className="preview-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Filename</th>
-                    <th>Status</th>
-                    <th>Rows</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {uploads.map((upload) => (
-                    <tr key={upload.id}>
-                      <td>{upload.id}</td>
-                      <td>{upload.file_name}</td>
-                      <td>{upload.status}</td>
-                      <td>{upload.processed_rows ?? '-'}</td>
-                      <td>
-                        <a
-                          className="download-link"
-                          href={`http://localhost:5000/download/${encodeURIComponent(upload.file_name)}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Download
-                        </a>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        {uploadsLoading ? (
+          <div className="uploads-loading">
+            <p>Loading saved uploads...</p>
           </div>
+        ) : (
+          uploads.length > 0 && (
+            <div className="uploads-section">
+              <h3 className="preview-title">Saved Uploads</h3>
+              <div className="uploads-table-wrapper">
+                <table className="preview-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Filename</th>
+                      <th>Status</th>
+                      <th>Rows</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {uploads.map((upload) => (
+                      <tr key={upload.id}>
+                        <td>{upload.id}</td>
+                        <td>{upload.file_name}</td>
+                        <td>{upload.status}</td>
+                        <td>{upload.processed_rows ?? "-"}</td>
+                        <td>
+                          <a
+                            className="download-link"
+                            href={`http://localhost:5000/download/${encodeURIComponent(upload.file_name)}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Download
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )
         )}
 
-        <button
-          className="upload-button"
-          onClick={uploadFile}
-          disabled={loading}
-        >
-          {loading ? "Uploading..." : "Upload File"}
-        </button>
+        <div className="upload-action">
+          <button
+            className="upload-button"
+            onClick={uploadFile}
+            disabled={loading}
+          >
+            {loading ? "Uploading..." : "Upload File"}
+          </button>
+        </div>
 
         {message && (
           <p className={`upload-message ${messageType}`}>
