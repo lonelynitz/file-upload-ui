@@ -14,33 +14,6 @@ export const FileUpload = () => {
   const [uploadsLoading, setUploadsLoading] = useState(false);
   const rowsPerPage = 10;
 
-  // const parseCsvPreview = (file: File) => {
-  //   const reader = new FileReader();
-
-  //   reader.onload = () => {
-  //     const text = reader.result as string;
-  //     if (!text) return;
-
-  //     const lines = text.split(/\r?\n/).filter((line) => line.trim().length > 0);
-  //     if (lines.length === 0) {
-  //       setPreviewHeaders([]);
-  //       setPreviewRows([]);
-  //       return;
-  //     }
-
-  //     const parsedRows = lines.map((line) =>
-  //       line.split(",").map((value) => value.trim())
-  //     );
-
-  //     setPreviewHeaders(parsedRows[0] || []);
-  //     setPreviewRows(parsedRows.slice(1));
-  //     setPreviewPage(1);
-  //     setPreviewEnabled(true);
-  //   };
-
-  //   reader.readAsText(file);
-  // };
-
   const parseCsvPreview = async (
     file: File
   ) => {
@@ -52,13 +25,9 @@ export const FileUpload = () => {
 
       // 1MB CHUNK
       const chunkSize = 1024 * 1024;
-
       let offset = 0;
-
       let headers: string[] = [];
-
       let allRows: string[][] = [];
-
       let leftover = "";
 
       while (offset < file.size) {
@@ -105,9 +74,7 @@ export const FileUpload = () => {
 
         // UPDATE UI
         setPreviewHeaders(headers);
-
         setPreviewRows([...allRows]);
-
         setPreviewEnabled(true);
 
         offset += chunkSize;
@@ -130,11 +97,8 @@ export const FileUpload = () => {
       }
 
       setPreviewHeaders(headers);
-
       setPreviewRows(allRows);
-
       setPreviewPage(1);
-
       setPreviewEnabled(true);
 
     } catch (err) {
