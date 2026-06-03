@@ -44,7 +44,7 @@ export const FileUpload = () => {
   const fetchUploads = async () => {
     setUploadsLoading(true);
     try {
-      const response = await axios.get("https://file-upload-service-plum.vercel.app/uploads");
+      const response = await axios.get("http://localhost:5000/uploads");
       setUploads(response.data || []);
     } catch (error) {
       console.error("Failed to load uploads", error);
